@@ -1,0 +1,21 @@
+---
+- hosts: frontend
+  become: yes
+  become_user: root
+
+  tasks:
+    - name: Create file
+      file:
+        path: /etc/foo.conf
+        state: touch
+
+    - name: Change file ownership, group and permissions
+      file:
+        path: /etc/foo.conf
+        mode: '0644'
+
+    - name: Touch a file, using symbolic modes to set the permissions (equivalent to 0644)
+      file:
+        path: /etc/ajay.conf
+        state: touch
+        mode: u=rw,g=r,o=r

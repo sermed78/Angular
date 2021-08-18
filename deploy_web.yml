@@ -1,0 +1,49 @@
+---
+- hosts: frontend
+  become: yes
+  become_user: root
+  vars:
+    server_port: 8090
+    worker_con: 1024
+
+  tasks:
+    - name: "Install the package"
+      apt:
+        name: nginx
+        state: present
+      ignore_errors: yes
+    
+    - name: "Stopped Service"
+      service:
+        name: nginx
+        state: stopped
+
+
+    - name: "copy content"
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+
+    - name: "apply config" 
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify: "Restart service if config updated"
+
+    - name: "apply config" 
+      template:
+        src: port.j2
+        dest:  /etc/nginx/sites-enabled/default  
+      notify: "Restart service if config updated"
+
+    - name: "start Service"
+      service:
+        name: nginx
+        state: started
+        
+  handlers:  
+    - name: "Restart service if config updated"
+      service:
+        name: nginx
+        state: restarted
+                    
